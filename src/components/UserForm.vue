@@ -6,7 +6,7 @@
           class="form-field__input" v-model.trim="$v.userName.$model"
         >
         <span v-if="$v.userName.$dirty && !$v.userName.required">введите что-нибудь</span>
-        <span v-if="$v.userName.$dirty && !$v.userName.minLength">минимальное количество</span>
+        <span v-if="$v.userName.$dirty && !$v.userName.minLength">минимальное количество </span>
       </div>
       <div class="form-field">
         <input id="userSurname" type="text" placeholder="Фамилия" class="form-field__input" v-model.trim="userSurname">
@@ -17,9 +17,10 @@
       <div class="form-field">
         <input id="useEmail" type="text" placeholder="Email" class="form-field__input" v-model.trim="userEmail">
       </div>
-      <div class="form-field">
-        <input type="checkbox" id="checkbox1" class="form-field__checkbox" v-model="useRules">
+      <div class="form-field" :class="$v.useRules.$error ? 'error' : ''">
+        <input type="checkbox" id="checkbox1" class="form-field__checkbox" v-model="useRules" @change="$v.useRules.$touch()">
         <label for="checkbox1">Правила пользования</label>
+        <span v-if="$v.useRules.$error">обязательное поле</span>
       </div>
       <div class="form-field">
         <input type="checkbox" id="checkbox2" class="form-field__checkbox" v-model="useConditions">
@@ -35,10 +36,11 @@
         <input type="radio" name="radioButtons" id="radio4" class="form-field__radio" v-model="condition">
         <label for="radio4">Условие 4</label>
       </div>
-      <div class="form-field">
-        <select class="form-field__select">
+      <div class="form-field" :class="$v.select.$error ? 'error' : ''">
+        <select class="form-field__select" @change="changeSelect" v-model="select">
           <option :value="option.value" v-for="(option, index) in selectOptions" :key="option.value + index">{{ option.title }}</option>
         </select>
+        <span v-if="$v.select.$error">обязательное поле</span>
       </div>
       <button class="form-button">Зарегестрировать</button>
     </form>
@@ -57,7 +59,8 @@ export default {
       userSurname: '',
       userFathername: '',
       userEmail: '',
-      useRules: '',
+      useRules: false,
+      select: null,
       useConditions: '',
       condition: '',
       selectOptions: [
@@ -80,16 +83,28 @@ export default {
     userName: {
       required,
       minLength: minLength(5),
-    }
+    },
+    useRules: {
+      required,
+      checked (val) {
+        return val
+      }
+    },
+    select: {
+      required,
+    },
   },
   methods: {
     submitForm() {
       this.$v.$touch();
 
-      if (this.$v.$error) {
+      if (!this.$v.$error) {
         console.log('Успех!');
       }
     },
+    changeSelect() {
+      this.$v.select.$touch();
+    }
   },
 }
 </script>
